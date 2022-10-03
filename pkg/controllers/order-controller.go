@@ -48,6 +48,13 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	UpdateOrderMultiple(w, r)
 }
 
+func TriggerOrder(w http.ResponseWriter, r *http.Request) {
+	go TriggerOrderMultiple(w, r)
+	go TriggerOrderMultiple(w, r)
+	go TriggerOrderMultiple(w, r)
+	TriggerOrderMultiple(w, r)
+}
+
 func GetOrderMultiple(w http.ResponseWriter, r *http.Request) {
 	newOrders := models.GetAllOrders()
 	res, _ := json.Marshal(newOrders)
@@ -122,6 +129,30 @@ func UpdateOrderMultiple(w http.ResponseWriter, r *http.Request) {
 
 	if updateOrder.Price != "" {
 		orderDetails.Price = updateOrder.Price
+	}
+
+	db.Save(&orderDetails)
+	res, _ := json.Marshal(orderDetails)
+	w.Header().Set("Content-Type", "pkglication/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func TriggerOrderMultiple(w http.ResponseWriter, r *http.Request) {
+	var updateOrder = &models.Order{}
+	utils.ParseBody(r, updateOrder)
+	vars := mux.Vars(r)
+	orderId := vars["orderId"]
+	ID, err := strconv.ParseInt(orderId, 0, 0)
+	if err != nil {
+		fmt.Println("error while parsing")
+	}
+	orderDetails, db := models.GetOrderById(ID)
+	// if (api.instrument == dbTable.instrument && api.price === dbTable.price then ){
+	// dbTable.status="filled"}
+	if updateOrder.Instrutment != orderDetails.Instrutment &&
+		updateOrder.Price == orderDetails.Price {
+		orderDetails.Status = "filled"
 	}
 
 	db.Save(&orderDetails)

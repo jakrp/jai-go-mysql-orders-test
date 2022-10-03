@@ -11,4 +11,5 @@ var RegisterOrderRoutes = func(router *mux.Router) {
 	router.HandleFunc("/orders/{orderid}", controllers.GetOrderById).Methods("GET")
 	router.HandleFunc("/orders/{orderid}", controllers.UpdateOrder).Methods("PUT")
 	router.HandleFunc("/orders/{orderid}", controllers.DeleteOrder).Methods("DELETE")
+	router.HandleFunc("/orders/trigger/{orderid}", controllers.TriggerOrder).Methods("POST")
 }
